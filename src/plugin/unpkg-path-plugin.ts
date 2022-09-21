@@ -1,31 +1,32 @@
-import * as esbuild from 'esbuild-wasm';
- 
+import * as esbuild from "esbuild-wasm";
+
+
+
 export const unpkgPathPlugin = () => {
   return {
-    name: 'unpkg-path-plugin',
+    name: "unpkg-path-plugin",
     setup(build: esbuild.PluginBuild) {
-      build.onResolve({ filter: /.*/ }, async (args: any) => {
-        console.log('onResole', args);
-        return { path: args.path, namespace: 'a' };
+
+      build.onResolve({ filter: /(^index\.js$)/ }, (args: any) => {
+        return { path: args.path, namespace: "a" };
       });
+
+      build.onResolve({ filter: /^\.+\// }, (args: any) => {
+        return {
+          path: new URL(
+            args.path,
+            "https://unpkg.com" + args.resolveDir + "/"
+          ).href,
+          namespace: "a",
+        };
+      });
+
+      build.onResolve({ filter: /.*/ }, async (args: any) => {
  
-      build.onLoad({ filter: /.*/ }, async (args: any) => {
-        console.log('onLoad', args);
- 
-        if (args.path === 'index.js') {
-          return {
-            loader: 'jsx',
-            contents: `
-              import message from './message';
-              console.log(message);
-            `,
-          };
-        } else {
-          return {
-            loader: 'jsx',
-            contents: 'export default "hi there!"',
-          };
-        }
+        return {
+          namespace: "a",
+          path: `https://unpkg.com/${args.path}`,
+        };
       });
     },
   };
