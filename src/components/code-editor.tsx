@@ -1,4 +1,4 @@
-import MonacoEditor, { EditorDidMount, monaco } from "@monaco-editor/react";
+import MonacoEditor, { EditorDidMount } from "@monaco-editor/react";
 import prettier from "prettier";
 import parser from "prettier/parser-babel";
 import {useRef} from 'react'
@@ -73,7 +73,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
           automaticLayout: true,
         }}
         language="javascript"
-        height="500px"
+        height="100%"
       />
     </div>
   );
