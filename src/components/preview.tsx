@@ -3,6 +3,7 @@ import './preview.css';
 
 interface PreviewProps {
   code: string;
+  bundlingStatus:string;
 }
 
 const html = `
@@ -17,21 +18,32 @@ html{
 <body>
 <div id="root"></div>
 <script>
-    window.addEventListener('message', (event) =>{
 
+    const handleError = (err) =>{
+      const root = document.querySelector('#root');
+      root.innerHTML = '<div style="color:red">testing: <h4>Runtime error</h4>' + err + '</div>'
+      console.error(err)
+    };
+
+    window.addEventListener('error', (event) =>{
+      event.preventDefault();
+      handleError(event.error)
+    })
+
+    window.addEventListener('message', (event) =>{
         try{
             eval(event.data)
         }
-        catch(e){
-           const root = document.querySelector('#root');
-           root.innerHTML = '<div style="color:red"><h4>Runtime error</h4>' + e + '</div>'
+        catch(err){
+          handleError(err);
         }
-    }, false)
+    }, false);
+
 </script>
 </body>
 `;
 
-const Preview: React.FC<PreviewProps> = ({ code }) => {
+const Preview: React.FC<PreviewProps> = ({ code, bundlingStatus }) => {
   const iframe = useRef<any>();
 
   useEffect(() => {
@@ -42,6 +54,8 @@ const Preview: React.FC<PreviewProps> = ({ code }) => {
    
   }, [code]);
 
+  console.log(bundlingStatus)
+
   return (
     <div className="preview-wrapper">
       <iframe
@@ -50,6 +64,7 @@ const Preview: React.FC<PreviewProps> = ({ code }) => {
         sandbox="allow-scripts"
         srcDoc={html}
       />
+       {bundlingStatus && <div className="preview-error">{bundlingStatus}</div>}
     </div>
   );
 };
